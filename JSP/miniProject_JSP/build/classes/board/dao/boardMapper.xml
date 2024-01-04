@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="boardSQL">
+	<insert id="boardWrite" parameterType="java.util.Map">
+		insert into board(seq, id, name, email, subject, content, ref)
+		values(seq_board.nextval, #{name}, #{id}, #{email}, #{subject} ,#{content}, seq_board.currval)
+	</insert>
+	
+	<select id="boardList" parameterType="java.util.Map" resultType="boardDTO">
+		<if test = 'colName == null and colValue == null'>
+		<![CDATA[
+		select * from
+		(select rownum rn, A.* from
+		(select * from board order by ref desc, step asc) A)
+		where rn >= #{start} and rn <= #{end}
+		]]>
+		</if>
+		<if test='colName != null and colName.equals("id") and colValue != null'>
+        	<![CDATA[
+			select * from
+			(select rownum rn, A.* from
+			(select * from board order by ref desc, step asc) A)
+			where rn >= #{start} and rn <= #{end}
+			and id like '%' || #{colValue} || '%'
+			]]>
+		</if>
+		<if test='colName != null and colName.equals("subject") and colValue != null'>
+        	<![CDATA[
+			select * from
+			(select rownum rn, A.* from
+			(select * from board order by ref desc, step asc) A)
+			where rn >= #{start} and rn <= #{end}
+			and subject like '%' || #{colValue} || '%'
+			]]>
+		</if>
+		<if test='colName != null and colName.equals("seq") and colValue != null'>
+        	<![CDATA[
+			select * from
+			(select rownum rn, A.* from
+			(select * from board order by ref desc, step asc) A)
+			where rn >= #{start} and rn <= #{end}
+			and seq like '%' || #{colValue} || '%'
+			]]>
+		</if>
+	</select>
+	
+	<select id="boardView" parameterType="_int" resultType="boardDTO">
+		select * from board where seq = #{seq}
+	</select>
+	
+	<select id="totalArticle" parameterType="java.util.Map" resultType="_int">
+		<if test='ColName == null and colValue == null'>
+			select count(*) from board
+			</if>
+		<if test='colName != null and colName.equals("id") and colValue != null'>
+			select count(*) from board where id like '%' || #{colValue} || '%'
+		</if>
+		<if test='colName != null and colName.equals("subject") and colValue != null'>
+			select count(*) from board where subject like '%' || #{colValue} || '%'
+		</if>
+		<if test='colName != null and colName.equals("seq") and colValue != null'>
+			select count(*) from board where seq like '%' || #{colValue} || '%'
+		</if>
+	</select>
+</mapper>
